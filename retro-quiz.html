@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Quiz</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            text-align: center; 
+            background-color: #fcf9f1;
+        }
+
+        h1 {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .question { 
+            margin: 20px 0; 
+        }
+        
+        .question label {
+            display: block;  /* Ensure each option is on a new line */
+            margin-bottom: 2px; /* Increase spacing between items */
+        }
+        
+        .hidden { 
+            display: none; 
+        }
+
+        button {
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        
+        #start-screen img {
+            max-width: 80%;
+            height: auto;
+        }
+
+        /* Style for the password input form */
+        #password-screen {
+            margin-top: 50px;
+        }
+        
+        /* Shimmering text effect */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        #quiz-result {
+            /*background: linear-gradient(90deg, #f3f3f3 25%, #e8e8e8 50%, #f3f3f3 75%);*/
+            background: linear-gradient(90deg, #FFFF00 25%, #e8e8e8 50%, #FFFF00 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+        
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <h1>Welcome to Lama Retro Quiz</h1>
+        <button onclick="startQuiz()">Start Quiz</button>
+        <br>
+        <img src="RETRO-Q1.png" alt="Retro Quiz Image" width="50%">
+    </div>
+
+    <!-- Password Input Screen -->
+    <div id="password-screen" class="hidden">
+        <h1>Enter the password to check your answers</h1>
+        <input type="password" id="password" placeholder="Enter password">
+        <button onclick="checkPassword()">Submit</button>
+        <p id="error-message" style="color:red; display:none;">Incorrect password. Try again.</p>
+        <div id="error"></div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="hidden">
+        <h1>Retro Quiz</h1>
+        <div id="quiz"></div>
+        <button id="next-button" onclick="nextQuestion()">Next Question</button>
+        <button id="check-answers-button" class="hidden" onclick="checkAnswers()">Check answers</button>
+    </div>
+    
+    <div id="end-screen" class="hidden">
+        <h1>End of Lama Retro Quiz</h1>
+        <p id="quiz-result"></p>
+        <img src="RETRO-Q1.png" alt="Retro Quiz Image" width="50%">
+    </div>
+
+    
+    <script>
+        const password = "iloveict";  // Set your password here
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function startQuiz() {
+            document.getElementById("start-screen").classList.add("hidden");
+            document.getElementById("quiz-screen").classList.remove("hidden");
+            showQuestion(0); // Show the first question
+        }
+
+        const questions = [
+            {
+                text: "Question 1: The first email message ever",
+                options: ["qwertyuiop", "12345678", "hello, world!"],
+                answer: "qwertyuiop"
+            },
+            {
+                text: "Question 2: 1973. Apple I (RAM)",
+                options: ["8Kb", "200Kb", "1Mb"],
+                answer: "8Kb"
+            },
+            {
+                text: "Question 3: IBM PC Model 5150 Hard Drive",
+                options: ["12Kb", "10Mb", "100Mb"],
+                answer: "10Mb"
+            },
+            {
+                text: "Question 4: How much did the first mobile phone cost in 1983?",
+                options: ["399$", "999$", "3995$"],
+                answer: "3995$"
+            },
+            {
+                text: "Question 5: True fact about the first Macintosh commercial",
+                options: ["Steve Jobs appeared in it for the first time", "A real robot was used in it", "Directed by Ridley Scott"],
+                answer: "Directed by Ridley Scott"
+            },
+            {
+                text: "Question 6: What was one of the main drawbacks of Windows 1.0?",
+                options: ["You couldn’t close windows", "The computer shut down after 10 minutes of use", "Text input was used instead of a cursor"],
+                answer: "You couldn’t close windows"
+            },
+            {
+                text: "Question 7: What inspired Tim Berners-Lee to create the World Wide Web?",
+                options: ["His dislike of paper documents", "The desire to organize scientific information", "He accidentally wrote the code and decided not to delete it", "He just wanted to create social networks"],
+                answer: "The desire to organize scientific information"
+            },
+            {
+                text: "Question 8: What did Amazon initially sell in its online store?",
+                options: ["Books", "Kettles and microwaves", "Music CDs", "Smartphones"],
+                answer: "Books"
+            },
+        ];
+
+        function showQuestion(index) {
+            const quizContainer = document.getElementById("quiz");
+            quizContainer.innerHTML = ""; 
+            const q = questions[index];
+            const div = document.createElement("div");
+            div.classList.add("question");
+            div.innerHTML = `<p>${q.text}</p>` +
+                q.options.map(opt => `<label><input type="radio" name="q${index}" value="${opt}">${opt}</label>`).join("<br>");
+            quizContainer.appendChild(div);
+        }
+
+        function nextQuestion() {
+            const selected = document.querySelector(`input[name=q${currentQuestionIndex}]:checked`);
+            if (selected && selected.value === questions[currentQuestionIndex].answer) {
+                score++;
+            }
+
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questions.length) {
+                showQuestion(currentQuestionIndex);
+            } else {
+                document.getElementById("next-button").classList.add("hidden"); // Hide the "Next Question" button
+                document.getElementById("check-answers-button").classList.remove("hidden"); // Show the "Check answers" button
+            }
+        }
+        
+        function checkAnswers() {
+            // Hide the quiz screen and show the password screen
+            document.getElementById("quiz-screen").classList.add("hidden");
+            document.getElementById("password-screen").classList.remove("hidden");
+        }
+
+        function checkPassword() {
+            const enteredPassword = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+
+            // Check the entered password
+            if (enteredPassword === password) {
+                // If the password is correct, show the result
+                const resultDiv = document.getElementById("quiz-result");
+                document.getElementById("password-screen").classList.add("hidden");
+                document.getElementById("end-screen").classList.remove("hidden");
+                resultDiv.innerText = `Your score: ${score} out of ${questions.length}`;
+            } else {
+                // If the password is incorrect, show the error message
+                errorMessage.style.display = "block";
+                document.getElementById("password").value = "";  // Clear the password field
+            }
+        }
+    </script>
+
+</body>
+</html>
+
